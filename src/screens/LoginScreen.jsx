@@ -1,65 +1,149 @@
-import React, {useState} from "react";
-import {View, Text, TextInput, TouchableOpacity, StyleSheet} from "react-native";
-import API from "../services/api";
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import ScreenBackground from '../components/ScreenBackground';
+import GlassCard from '../components/GlassCard';
+import GlassInput from '../components/GlassInput';
+import GlassButton from '../components/GlassButton';
+import {THEME} from '../utils/theme';
+import API from '../services/api';
 
 export default function LoginScreen({navigation}) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const login = async () => {
     try {
-      const res = await API.post("/auth/login", {
+      const res = await API.post('/auth/login', {
         email,
         password,
       });
 
-      navigation.replace("Home", {user: res.data.user});
+      navigation.replace('Home', {user: res.data.user});
     } catch (err) {
-      console.log(err?.response?.data);
+      console.log(err?.response?.data || err);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mishicoin Login</Text>
+    <ScreenBackground>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.header}>
+            <View style={styles.logoBadge}>
+              <Ionicons name="ellipse" size={24} color={THEME.accent} />
+            </View>
+            <Text style={styles.brandTitle}>Mishicoin</Text>
+            <Text style={styles.brandSubtitle}>Secure Digital Wallet</Text>
+          </View>
 
-      <TextInput
-        placeholder="Email"
-        style={styles.input}
-        onChangeText={setEmail}
-      />
+          <GlassCard style={styles.card}>
+            <GlassInput
+              icon="mail-outline"
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <GlassInput
+              icon="lock-closed-outline"
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
 
-      <TextInput
-        placeholder="Password"
-        secureTextEntry
-        style={styles.input}
-        onChangeText={setPassword}
-      />
+            <TouchableOpacity
+              activeOpacity={0.75}
+              style={styles.forgotRow}
+              onPress={() => navigation.navigate('Signup')}
+            >
+              <Text style={styles.forgotText}>Forgot Password?</Text>
+            </TouchableOpacity>
 
-      <TouchableOpacity style={styles.btn} onPress={login}>
-        <Text style={styles.btnText}>Login</Text>
-      </TouchableOpacity>
+            <GlassButton title="LOG IN" onPress={login} />
+          </GlassCard>
 
-      <Text onPress={() => navigation.navigate("Signup")}>
-        Create Account
-      </Text>
-    </View>
+          <View style={styles.footerRow}>
+            <Text style={styles.footerText}>Don't have an account? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+              <Text style={styles.footerLink}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ScreenBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, justifyContent: "center", padding: 20},
-  title: {fontSize: 26, fontWeight: "bold", marginBottom: 20},
-  input: {
+  flex: {flex: 1},
+  container: {
+    flexGrow: 1,
+    padding: 24,
+    justifyContent: 'center',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 28,
+  },
+  logoBadge: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: 'rgba(58, 134, 255, 0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
     borderWidth: 1,
-    marginBottom: 10,
-    padding: 10,
-    borderRadius: 10,
+    borderColor: 'rgba(255,255,255,0.15)',
   },
-  btn: {
-    backgroundColor: "#3A86FF",
-    padding: 15,
-    borderRadius: 10,
+  brandTitle: {
+    color: THEME.textPrimary,
+    fontSize: 28,
+    fontWeight: '800',
   },
-  btnText: {color: "#fff", textAlign: "center"},
+  brandSubtitle: {
+    color: THEME.textSecondary,
+    marginTop: 6,
+    fontSize: 15,
+  },
+  card: {
+    marginBottom: 18,
+  },
+  forgotRow: {
+    alignSelf: 'flex-end',
+    marginBottom: 16,
+  },
+  forgotText: {
+    color: THEME.accent,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 12,
+  },
+  footerText: {
+    color: THEME.textSecondary,
+    fontSize: 14,
+  },
+  footerLink: {
+    color: THEME.accent,
+    fontSize: 14,
+    fontWeight: '700',
+  },
 });
