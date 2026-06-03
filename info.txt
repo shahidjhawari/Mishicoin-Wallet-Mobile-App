@@ -1,3 +1,5 @@
 npx react-native start
 .\gradlew assembleRelease
 .\gradlew clean
+npm start -- --reset-cache
+
